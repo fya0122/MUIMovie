@@ -7,15 +7,46 @@
 		<title>Hello MUI</title>
 		<link rel="stylesheet" type="text/css" href="css/reset.css" />
 		<link href="css/mui.min.css" rel="stylesheet" />
-		<link rel="stylesheet" type="text/css" href="css/index.css"/>
+		<script src="js/lib-flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="css/common.css" />
+		<link rel="stylesheet" type="text/css" href="css/index.css" />
 		<script src="js/mui.min.js"></script>
 		<script src="js/util.js"></script>
+		<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bscroll.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/index.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 
 	<body>
-		<div class="container">
-			hello, this is index.html
+		<div class="mui-content">
+			<div class="wrap-search">
+				<span class="search-icon mui-icon mui-icon-search"></span>
+				<span class="search-txt">电影/电视剧/影人</span>
+			</div>
+			<div id="list_wrap" class="list-wrap">
+				<ul id="movies">
+					<li class="item" v-for="item of movies">
+						<img v-if="item.cover" class="item-img" :src="item.cover" />
+						<div class="right-wrap">
+							<div class="mui-ellipsis dark-big">
+								{{ item.title }}
+							</div>
+							<div class="mui-ellipsis">
+								<span class="gray-small">{{ item.genres }}</span>&nbsp;
+								<span v-if="item.score > 0" class="orange-small">{{ item.score }}分</span>
+								<span v-else class="orange-small">暂无评分</span>
+							</div>
+							<div class="mui-ellipsis gray-small">
+								导演：{{ item.directors }}
+							</div>
+							<div class="mui-ellipsis gray-small">
+								主演：{{ item.casts }}
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
 		</div>
 	</body>
 
