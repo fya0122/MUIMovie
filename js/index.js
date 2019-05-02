@@ -97,6 +97,7 @@
 		// 获取首页数据
 		var start = 0
 		var total = 0
+		var flag_pullingUp = false
 
 		function _getIndexData() {
 			mui.getJSON(baseUrl + '/v2/movie/in_theaters', {
@@ -117,6 +118,7 @@
 				}, 77)
 				// 监听上拉加载执行的方法
 				myscroll.on('pullingUp', function() {
+					flag_pullingUp = true
 					shanglajiazai()
 				})
 				// 监听下拉刷新执行的方法
@@ -127,21 +129,28 @@
 		}
 		// 上拉加载
 		function shanglajiazai() {
-			start = start + 10
-			if(total > start) {
-				mui.getJSON(baseUrl + '/v2/movie/in_theaters', {
-					start: start,
-					count: 10
-				}, function(res) {
-					var shanglajiazai_movies = convert(res.subjects)
-					data_movies.movies = data_movies.movies.concat(shanglajiazai_movies)
-					myscroll.refresh()
-					myscroll.finishPullUp()
-				})
-			} else {
-				mui.alert('数据没了')
-				myscroll.finishPullUp()
+			if(flag_pullingUp === false) {
+				mui.toast('稍等,数据正在请求中....')
 				return false
+			} else {
+				start = start + 10
+				if(total > start) {
+					mui.getJSON(baseUrl + '/v2/movie/in_theaters', {
+						start: start,
+						count: 10
+					}, function(res) {
+						var shanglajiazai_movies = convert(res.subjects)
+						data_movies.movies = data_movies.movies.concat(shanglajiazai_movies)
+						flag_pullingUp = false
+						myscroll.refresh()
+						myscroll.finishPullUp()
+					})
+				} else {
+					flag_pullingUp = false
+					mui.toast('数据没了')
+					myscroll.finishPullUp()
+					return false
+				}
 			}
 		}
 		// 下拉刷新
