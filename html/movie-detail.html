@@ -10,10 +10,6 @@
 		<script src="../js/lib-flexible.js" type="text/javascript" charset="utf-8"></script>
 		<link rel="stylesheet" type="text/css" href="../css/common.css" />
 		<link rel="stylesheet" type="text/css" href="../css/movie-detail.css" />
-		<script src="../js/mui.min.js"></script>
-		<script src="../js/vue.js"></script>
-		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
-		<script src="../js/movie-detail.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 
 	<body>
@@ -27,9 +23,9 @@
 			</div>
 			<div style="padding: 0.15rem;height: 0.9rem;">
 				<div style="float: left;">
-					<span class="dark-big" style="display: block;">{{ titie }}</span>
+					<span class="dark-big" style="display: block;">{{ title }}</span>
 					<span class="gray-small">{{ year }} / {{ countries }} / {{ genres }}</span>
-					<span class="gray-small" style="display: block;">{{ directors[0].name }}导演作品</span>
+					<span class="gray-small" style="display: block;">{{ directors.length > 0 ? directors[0].name : ''}}导演作品</span>
 				</div>
 				<div style="width: 0.6rem;height: 0.6rem;background: white;float: right;text-align: center;box-shadow: 0 0 0.1rem #aaaaaa;">
 					<span class="gray-micro" style="display: block;vertical-align: middle;margin-top: 0.05rem;line-height: 0.15rem;">豆瓣评分</span>
@@ -43,7 +39,7 @@
 			<p class="dark-medium mui-ellipsis-4" style="margin: 0 0.15rem 0 0.15rem;">{{ summary }}</p>
 			<p class="gray-small" style="margin: 0.1rem 0 0 0.15rem;">演员</p>
 			<div style="overflow-x: scroll;white-space: nowrap;padding-left: 0.15rem;">
-				<div v-for="item in casts" style="display: inline-block;">
+				<div v-for="item in casts" style="display: inline-block;" @click="open_detail(item)">
 					<img style="width: 0.7rem;height: 1rem;margin-right: 0.1rem;" :src="item.avatars.medium" />
 					<div class="dark-micro mui-ellipsis" style="width: 0.7rem;text-align: center;">{{ item.name }}</div>
 				</div>
@@ -62,6 +58,10 @@
 				</li>
 			</ul>
 		</div>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/vue.js"></script>
+		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/movie-detail.js" type="text/javascript" charset="utf-8"></script>
 	</body>
 
 </html>
