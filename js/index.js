@@ -55,6 +55,8 @@
 				movies: []
 			}
 		})
+		// better-scroll对象
+		var myscroll
 
 		// 这个函数是转换数据接口用的
 		function convert(items) {
@@ -91,11 +93,70 @@
 			return newItems
 		}
 
+		_getIndexData()
 		// 获取首页数据
-		mui.getJSON(baseUrl + '/v2/movie/in_theaters', {}, function(res) {
-			data_movies.movies = convert(res.subjects)
-			var myscroll = new BScroll(document.getElementById('list_wrap'))
-		})
+		var start = 0
+		var total = 0
+
+		function _getIndexData() {
+			mui.getJSON(baseUrl + '/v2/movie/in_theaters', {
+				start: start, // 从0开始
+				count: 10 // 每次10条
+			}, function(res) {
+				data_movies.movies = convert(res.subjects)
+				total = res.total
+				myscroll = new BScroll(document.getElementById('list_wrap'), {
+					click: true,
+					scrollY: true,
+					pullUpLoad: true, // 开启上拉加载
+					pullDownRefresh: true // 开启下拉刷新
+				})
+				// 消除dom渲染不及时的bug
+				setTimeout(function() {
+					myscroll.refresh()
+				}, 77)
+				// 监听上拉加载执行的方法
+				myscroll.on('pullingUp', function() {
+					shanglajiazai()
+				})
+				// 监听下拉刷新执行的方法
+				myscroll.on('pullingDown', function() {
+					xialashuaxin()
+				})
+			})
+		}
+		// 上拉加载
+		function shanglajiazai() {
+			start = start + 10
+			if(total > start) {
+				mui.getJSON(baseUrl + '/v2/movie/in_theaters', {
+					start: start,
+					count: 10
+				}, function(res) {
+					var shanglajiazai_movies = convert(res.subjects)
+					data_movies.movies = data_movies.movies.concat(shanglajiazai_movies)
+					myscroll.refresh()
+					myscroll.finishPullUp()
+				})
+			} else {
+				mui.alert('数据没了')
+				myscroll.finishPullUp()
+				return false
+			}
+		}
+		// 下拉刷新
+		function xialashuaxin() {
+			data_movies.movies = []
+			mui.getJSON(baseUrl + '/v2/movie/in_theaters', {
+				start: 0,
+				count: 10
+			}, function(res) {
+				start = 0
+				data_movies.movies = convert(res.subjects)
+				myscroll.refresh()
+				myscroll.finishPullDown()
+			})
+		}
 	});
 
 })();
