@@ -49,12 +49,23 @@
 			mui.alert(123)
 		})
 
-		var data_movies = new Vue({
-			el: '#movies',
-			data: {
-				movies: []
-			}
+		// 预加载电影详情页面
+		var detailPage = mui.preload({
+			id: 'movie-detail',
+			url: '../html/movie-detail.html'
 		})
+
+		$('#movies').on('click', '.item', function() {
+			var id = $(this).data('id')
+			// 打开这个页面的同时，也要把movie-detai.html页面的写的自定义方法在这里写一下
+			mui.fire(detailPage, 'movieId', { // 通过mui.fire触发detailPage页面里面的movieId这个自定义传参的方法，同时把id传递过去
+				id: id
+			})
+			mui.openWindow({
+				id: 'movie-detail'
+			})
+		})
+
 		// better-scroll对象
 		var myscroll
 
@@ -104,7 +115,33 @@
 				start: start, // 从0开始
 				count: 10 // 每次10条
 			}, function(res) {
-				data_movies.movies = convert(res.subjects)
+				var movies = convert(res.subjects)
+
+				for(var i = 0; i < movies.length; i++) {
+					var html = ''
+					html += '<li data-id="' + movies[i].id + '" class="item">'
+					if(movies[i].cover) {
+						html += '<img class="item-img" src="' + movies[i].cover + '" />'
+					} else {
+						html += '<img class="item-img" src="http://placehold.it/60x90" />'
+					}
+					html += '<div class="right-wrap">'
+					html += '<div class="mui-ellipsis dark-big">' + movies[i].title + '</div>'
+					html += '<div class="mui-ellipsis">'
+					html += '<span class="gray-small">' + movies[i].genres + '</span>&nbsp;'
+					if(movies[i].score > 0) {
+						html += '<span class="orange-small">' + movies[i].score + '分</span>'
+					} else {
+						html += '<span class="orange-small">暂无评分</span>'
+					}
+					html += '</div>'
+					html += '<div class="mui-ellipsis gray-small">导演：' + movies[i].directors + '</div>'
+					html += '<div class="mui-ellipsis gray-small">主演：' + movies[i].casts + '</div>'
+					html += '</div>'
+					html += '</li>'
+					$('#movies').append(html)
+				}
+
 				total = res.total
 				myscroll = new BScroll(document.getElementById('list_wrap'), {
 					click: true,
@@ -140,7 +177,31 @@
 						count: 10
 					}, function(res) {
 						var shanglajiazai_movies = convert(res.subjects)
-						data_movies.movies = data_movies.movies.concat(shanglajiazai_movies)
+						for(var i = 0; i < shanglajiazai_movies.length; i++) {
+							var html = ''
+							html += '<li data-id="' + shanglajiazai_movies[i].id + '" class="item">'
+							if(shanglajiazai_movies[i].cover) {
+								html += '<img class="item-img" src="' + shanglajiazai_movies[i].cover + '" />'
+							} else {
+								html += '<img class="item-img" src="http://placehold.it/60x90" />'
+							}
+							html += '<div class="right-wrap">'
+							html += '<div class="mui-ellipsis dark-big">' + shanglajiazai_movies[i].title + '</div>'
+							html += '<div class="mui-ellipsis">'
+							html += '<span class="gray-small">' + shanglajiazai_movies[i].genres + '</span>&nbsp;'
+							if(shanglajiazai_movies[i].score > 0) {
+								html += '<span class="orange-small">' + shanglajiazai_movies[i].score + '分</span>'
+							} else {
+								html += '<span class="orange-small">暂无评分</span>'
+							}
+							html += '</div>'
+							html += '<div class="mui-ellipsis gray-small">导演：' + shanglajiazai_movies[i].directors + '</div>'
+							html += '<div class="mui-ellipsis gray-small">主演：' + shanglajiazai_movies[i].casts + '</div>'
+							html += '</div>'
+							html += '</li>'
+							$('#movies').append(html)
+						}
+
 						flag_pullingUp = false
 						myscroll.refresh()
 						myscroll.finishPullUp()
@@ -155,13 +216,37 @@
 		}
 		// 下拉刷新
 		function xialashuaxin() {
-			data_movies.movies = []
+			$('#movies').empty()
 			mui.getJSON(baseUrl + '/v2/movie/in_theaters', {
 				start: 0,
 				count: 10
 			}, function(res) {
 				start = 0
-				data_movies.movies = convert(res.subjects)
+				var movies = convert(res.subjects)
+				for(var i = 0; i < movies.length; i++) {
+					var html = ''
+					html += '<li data-id="' + movies[i].id + '" class="item">'
+					if(movies[i].cover) {
+						html += '<img class="item-img" src="' + movies[i].cover + '" />'
+					} else {
+						html += '<img class="item-img" src="http://placehold.it/60x90" />'
+					}
+					html += '<div class="right-wrap">'
+					html += '<div class="mui-ellipsis dark-big">' + movies[i].title + '</div>'
+					html += '<div class="mui-ellipsis">'
+					html += '<span class="gray-small">' + movies[i].genres + '</span>&nbsp;'
+					if(movies[i].score > 0) {
+						html += '<span class="orange-small">' + movies[i].score + '分</span>'
+					} else {
+						html += '<span class="orange-small">暂无评分</span>'
+					}
+					html += '</div>'
+					html += '<div class="mui-ellipsis gray-small">导演：' + movies[i].directors + '</div>'
+					html += '<div class="mui-ellipsis gray-small">主演：' + movies[i].casts + '</div>'
+					html += '</div>'
+					html += '</li>'
+					$('#movies').append(html)
+				}
 				myscroll.refresh()
 				myscroll.finishPullDown()
 			})
