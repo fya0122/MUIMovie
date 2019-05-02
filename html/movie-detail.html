@@ -8,13 +8,60 @@
 		<link rel="stylesheet" type="text/css" href="../css/reset.css" />
 		<link href="../css/mui.min.css" rel="stylesheet" />
 		<script src="../js/lib-flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
 		<link rel="stylesheet" type="text/css" href="../css/movie-detail.css" />
 		<script src="../js/mui.min.js"></script>
+		<script src="../js/vue.js"></script>
+		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/movie-detail.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 
 	<body>
-		movie-detail.html
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">电影</h1>
+		</header>
+		<div id="mywrap" class="mui-content" style="background: white;">
+			<div class="top-image-block">
+				<img :src="cover" />
+			</div>
+			<div style="padding: 0.15rem;height: 0.9rem;">
+				<div style="float: left;">
+					<span class="dark-big" style="display: block;">{{ titie }}</span>
+					<span class="gray-small">{{ year }} / {{ countries }} / {{ genres }}</span>
+					<span class="gray-small" style="display: block;">{{ directors[0].name }}导演作品</span>
+				</div>
+				<div style="width: 0.6rem;height: 0.6rem;background: white;float: right;text-align: center;box-shadow: 0 0 0.1rem #aaaaaa;">
+					<span class="gray-micro" style="display: block;vertical-align: middle;margin-top: 0.05rem;line-height: 0.15rem;">豆瓣评分</span>
+					<span v-if="score > 0" class="dark-big" style="display: block;line-height: 0.2rem;">{{ score }}</span>
+					<span v-else class="dark-big" style="display: block;line-height: 0.2rem;">暂无评分</span>
+					<span class="gray-micro" style="display: block;line-height: 0.15rem;">{{ ratingCount }}人</span>
+				</div>
+			</div>
+			<div style="height: 0.005rem;background: #a2a2a2;margin-left: 0.15rem;"></div>
+			<p class="gray-small" style="margin: 0.1rem 0 0 0.15rem;">剧情简介</p>
+			<p class="dark-medium mui-ellipsis-4" style="margin: 0 0.15rem 0 0.15rem;">{{ summary }}</p>
+			<p class="gray-small" style="margin: 0.1rem 0 0 0.15rem;">演员</p>
+			<div style="overflow-x: scroll;white-space: nowrap;padding-left: 0.15rem;">
+				<div v-for="item in casts" style="display: inline-block;">
+					<img style="width: 0.7rem;height: 1rem;margin-right: 0.1rem;" :src="item.avatars.medium" />
+					<div class="dark-micro mui-ellipsis" style="width: 0.7rem;text-align: center;">{{ item.name }}</div>
+				</div>
+			</div>
+			<p class="dark-medium" style="margin-top: 0.1rem;text-align: center;background: #E6E6E6;line-height: 0.4rem;">评论</p>
+			<ul class="mui-table-view" style="background: white;">
+				<li class="mui-table-view-cell">
+					<img class="comment-head-photo mui-pull-left" src="http://placehold.it/160x240" />
+					<div>
+						<span class="dark-medium" style="line-height: 0.3rem;text-align: center;margin-left: 0.1rem;">Hello World</span>
+						<span class="gray-medium" style="line-height: 0.3rem;text-align: center;float: right;">2019年5月2日17:59:47</span>
+					</div>
+					<p style="margin-left: 0.4rem;" class="dark-medium">
+						这部电影非常棒!
+					</p>
+				</li>
+			</ul>
+		</div>
 	</body>
 
 </html>

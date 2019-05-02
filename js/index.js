@@ -3,7 +3,6 @@
 		swipeBack: true //启用右滑关闭功能
 	});
 	mui.plusReady(function() {
-
 		// 创建子webview窗口 并初始化
 		var aniShow = {};
 		util.initSubpage(aniShow);
@@ -43,27 +42,27 @@
 				activePage = targetPage;
 			}
 		});
-
 		// 给搜索框添加点击事件
 		mui('.wrap-search')[0].addEventListener('tap', function() {
 			mui.alert(123)
 		})
-
 		// 预加载电影详情页面
-		var detailPage = mui.preload({
-			id: 'movie-detail',
-			url: '../html/movie-detail.html'
+		var detailpage = mui.preload({
+			id: 'moviedetail',
+			url: 'html/movie-detail.html'
 		})
-
 		$('#movies').on('click', '.item', function() {
+			mui.openWindow({
+				url: 'html/movie-detail.html',
+				id: 'moviedetail'
+			})
 			var id = $(this).data('id')
 			// 打开这个页面的同时，也要把movie-detai.html页面的写的自定义方法在这里写一下
-			mui.fire(detailPage, 'movieId', { // 通过mui.fire触发detailPage页面里面的movieId这个自定义传参的方法，同时把id传递过去
+			// 通过mui.fire触发detailPage页面里面的movieId这个自定义传参的方法，同时把id传递过去
+			mui.fire(detailpage, 'movieid', {
 				id: id
 			})
-			mui.openWindow({
-				id: 'movie-detail'
-			})
+
 		})
 
 		// better-scroll对象
