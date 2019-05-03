@@ -1,5 +1,5 @@
 (function() {
-	mui.init();
+	mui.init()
 	// 默认数据
 	function getDefaultData() {
 		return {
@@ -25,12 +25,21 @@
 				Object.assign(this.$data, getDefaultData())
 			},
 			// 打开演员详情
-			open_detail: function(item) {}
+			open_detail: function(item) {
+				mui.openWindow({
+					id: 'castdetail',
+					url: 'cast-detail.html',
+					extras: {
+						castid: item.id
+					}
+				})
+			}
 		}
 	})
 
 	mui.plusReady(function() {
 		var self = plus.webview.currentWebview()
+
 		// 添加hide事件，清空页面的数据
 		self.addEventListener('hide', function() {
 			window.scrollTo(0, 0)
@@ -43,7 +52,7 @@
 		var id = e.detail.id
 		plus.nativeUI.showWaiting("加载中...")
 		mui.getJSON(baseUrl + '/v2/movie/subject/' + id, function(res) {
-			console.log(JSON.stringify(res))
+			console.log(JSON.stringify(res));
 			page_movie_detail.title = res.title // 标题
 			page_movie_detail.cover = res.images.large // 图像
 			page_movie_detail.score = res.rating.average // 评分

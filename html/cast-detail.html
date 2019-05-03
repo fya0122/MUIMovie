@@ -11,6 +11,7 @@
 		<link rel="stylesheet" type="text/css" href="../css/common.css"/>
 		<link rel="stylesheet" type="text/css" href="../css/cast-detail.css"/>
 		<script src="../js/mui.min.js"></script>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/cast-detail.js" type="text/javascript" charset="utf-8"></script>
 	</head>
@@ -18,8 +19,30 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-		    <h1 class="mui-title">标题</h1>
+		    <h1 class="mui-title">影人</h1>
 		</header>
+		<div class="mui-content">
+			<div class="top-image-block">
+				<img style="width: 1.6rem;height: 2.4rem;vertical-align: top;" :src="cover"/>
+			</div>
+			<div style="padding: 0.15rem;">
+				<div class="dark-big">{{ name }}</div>
+				<div class="gray-medium">{{ enName }}</div>
+				<div class="gray-small">个人简介</div>
+				<div class="dark-medium">{{ summary }}</div>
+			</div>
+			<!-- 代表的是作品 -->
+			<div style="padding-left: 0.15rem;" class="gray-small">
+				代表作品
+			</div>
+			<div style="overflow-x: scroll;white-space: nowrap;padding-left: 0.15rem;overflow-y: hidden;">
+				<div v-for="item in works" style="display: inline-block;">
+					<img style="width: 0.7rem;height: 1rem;margin-right: 0.1rem;" :src="item.subject.images.medium" alt="" />
+					<div style="width: 0.7rem;text-align: center;" class="mui-ellipsis dark-micro">{{ item.subject.title }}</div>
+					<div class="orange-small mui-ellipsis" style="width: 0.7rem;text-align: center;line-height: 0.15rem;">{{ item.subject.rating.average }}分</div>
+				</div>
+			</div>
+		</div>
 	</body>
 
 </html>
