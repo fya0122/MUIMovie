@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/reset.css" />
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/lib-flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<style type="text/css">
+			#mywrap {
+				width: 100%;
+				height: calc(100vh - 0.44rem);
+				position: relative;
+				overflow: hidden;
+				margin-top: 0.44rem;
+			}
+			/* 排序数组的样式 */
+			
+			.top-index {
+				color: red;
+				font-size: 0.16rem;
+				font-size: initial;
+				width: 0.3rem;
+				display: inline-block;
+				margin-top: 0.4rem;
+				margin-bottom: 0.15rem;
+			}
+			/* 画的2个线 */
+			
+			.line {
+				width: 0.5rem;
+				background: #c4c4c4;
+				height: 0.005rem;
+				display: inline-block;
+				vertical-align: middle;
+			}
+			
+			.card {
+				margin-left: 0.15rem;
+				margin-right: 0.15rem;
+				height: 1.2rem;
+				border: 0.01rem solid #c4c4c4;
+				border-radius: 0.02rem;
+				box-shadow: 0 0.01rem 0.05rem #c4c4c4;
+				padding: 0.15rem;
+				text-align: left;
+			}
+		</style>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/bscroll.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">北美票房榜</h1>
+		</header>
+		<div id="mywrap" class="mui-content">
+			<ul style="background: white;">
+				<li v-for="item in list" @click="open_detail(item)">
+					<div style="text-align: center;">
+						<div class="line"></div>
+						<div class="top-index">{{ item.sort }}</div>
+						<div class="line"></div>
+					</div>
+					<div class="card">
+						<img class="mui-pull-left" style="width: 0.7rem;height: 0.95rem;margin-right: 0.1rem;" :src="item.cover" alt="" />
+						<div class="dark-big">{{ item.title }}</div>
+						<div style="line-height: 0.2rem;">
+							<span class="gray-small">豆瓣评分：</span>
+							<span class="orange-small">{{ item.score }}分</span>
+						</div>
+						<span style="display: block;line-height: 0.2rem;" class="gray-small mui-ellipsis">导演：{{ item.directors }}</span>
+						<span style="display: block;line-height: 0.2rem;" class="gray-small mui-ellipsis">演员：{{ item.casts }}</span>
+					</div>
+					<span class="dark-medium" style="margin-left: 0.15rem;margin-top: 0.1rem;display: block;">票房{{ item.box / 10000 }}万美元</span>
+				</li>
+			</ul>
+		</div>
+
+		<script type="text/javascript">
+			mui.init();
+			var detailPage = null
+			var myscroll = null
+			mui.plusReady(function() {
+				detailPage = plus.webview.getWebviewById('moviedetail')
+				if(!detailPage) {
+					detailPage = mui.preload({
+						id: 'moviedetail',
+						url: 'movie-detail.html'
+					})
+				}
+				// 获取数据
+				getData()
+			})
+			// 数据转换
+			function convert(obj) {
+				var newItems = []
+				var items = obj.subjects
+				for(var i = 0; i < items.length; i++) {
+					var item = items[i]
+					// 重组导演
+					var directors = ''
+					for(var k = 0; k < item.subject.directors.length; k++) {
+						directors += item.subject.directors[k].name
+						if(k !== item.subject.directors.length - 1) {
+							directors += '/'
+						}
+					}
+					// 演员
+					var casts = ''
+					for(var k = 0; k < item.subject.casts.length; k++) {
+						casts += item.subject.casts[k].name
+						if(k !== item.subject.casts.length - 1) {
+							casts += '/'
+						}
+					}
+					newItems.push({
+						sort: i + 1,
+						id: item.subject.id,
+						title: item.subject.title,
+						cover: item.subject.images.medium,
+						score: item.subject.rating.average,
+						directors: directors,
+						casts: casts,
+						box: item.box
+					})
+				}
+				return newItems
+			}
+
+			function getData() {
+				plus.nativeUI.showWaiting('加载中', {
+					width: '100px',
+					height: '100px'
+				})
+				mui.getJSON(baseUrl + '/v2/movie/us_box', {}, function(res) {
+					currentPage.list = convert(res)
+					plus.nativeUI.closeWaiting()
+					// 这里用better-scroll实现
+					myscroll = new BScroll(document.getElementById('mywrap'), {
+						click: true,
+						scrollY: true,
+						pullUpLoad: true, // 开启上拉加载
+						pullDownRefresh: true // 开启下拉刷新
+					})
+					setTimeout(function() {
+						myscroll.refresh()
+					}, 77)
+				})
+			}
+
+			var currentPage = new Vue({
+				el: '#mywrap',
+				data: {
+					list: []
+				},
+				methods: {
+					open_detail: function(item) {
+						mui.fire(detailPage, 'movieid', function() {
+							id: item.id
+						})
+						open_detail.show('slide-in-right')
+					}
+				}
+			})
+		</script>
+	</body>
+
+</html>

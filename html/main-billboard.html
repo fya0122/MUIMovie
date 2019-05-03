@@ -194,6 +194,17 @@
 					}
 				})
 			})
+			// 跳转-北美票房
+			mui('#billboard_box')[0].addEventListener('tap', function() {
+				mui.openWindow({
+					url: './billboard-box.html',
+					id: 'billboardbox',
+					waiting: {
+						autoShow: true,
+						title: '正在加载....'
+					}
+				})
+			})
 		</script>
 	</body>
 
