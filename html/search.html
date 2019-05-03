@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/reset.css" />
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script src="../js/lib-flexible.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+
+		</style>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body>
+		<div style="background: white;" class="mui-content">
+			<div style="width: 80%;display: inline-block;padding-left: 0.15rem;margin-top: 0.15rem;text-align: center;">
+				<div class="mui-input-row mui-search">
+					<input placeholder="电影/电视剧/影人" type="search" id="search" />
+				</div>
+			</div>
+			<span id="cancel" style="width: 20%;text-align: center;float: right;line-height: 0.3rem;color: #2a7cf8;font-size: 0.16rem;margin-top: 0.15rem;">取消</span>
+			<div style="font-size: 0.12rem;color: #888888;background: #e6e6e6;padding-left: 0.15rem;padding-right: 0.15rem;padding-top: 0.05rem;padding-bottom: 0.05rem;">
+				<span>搜索记录</span>
+				<span id="clear" style="color: #2a7cf8;float: right;">清除</span>
+			</div>
+			<ul id="list" class="mui-table-view">
+				<li @click="gotoSearchResult(item)" class="mui-table-view-cell" v-for="item in records">
+					{{ item }}
+				</li>
+			</ul>
+		</div>
+		<script type="text/javascript">
+			mui.init();
+			mui('#cancel')[0].addEventListener('tap', function() {
+				mui.back();
+			})
+
+			var searchPage = new Vue({
+				el: '#list',
+				data: {
+					records: []
+				},
+				methods: {
+					// 点击一个历史记录，还是去要跳转的
+					gotoSearchResult: function(item) {
+						searchPage.records.remove(item)
+						searchPage.records.splice(0, 0, item)
+						mui.openWindow({
+							id: 'searchresult',
+							url: 'search-result.html',
+							extras: {
+								name: item
+							}
+						})
+					}
+				}
+			})
+			mui.plusReady(function() {
+				if(plus.storage.getItem('douban_app_history') && plus.storage.getItem('douban_app_history') !== '') {
+					searchPage.records = plus.storage.getItem('douban_app_history').split(',')
+				}
+			})
+			// 给清除添加事件
+			mui('#clear')[0].addEventListener('tap', function() {
+				plus.storage.setItem('douban_app_history', '')
+				searchPage.records = []
+			})
+			// 新增属性
+			Array.prototype.contains = function(obj) {
+				var i = this.length;
+				while(i--) {
+					if(this[i] === obj) {
+						return true
+					}
+				}
+				return false
+			}
+			Array.prototype.indexOf = function(val) {
+				for(var i = 0; i < this.length; i++) {
+					if(this[i] == val) {
+						return i
+					}
+				}
+				return -1
+			}
+			Array.prototype.remove = function(val) {
+				var index = this.indexOf(val)
+				if(index > -1) {
+					this.splice(index, 1)
+				}
+			}
+			// 键盘事件
+			document.onkeydown = function(event) {
+				var e = event || window.event || arguments.caller.arguments[0]
+				if(e && e.keyCode === 13) {
+					if(searchPage.records.contains(eval(document.getElementById('search')).value)) {
+						searchPage.records.remove(eval(document.getElementById('search')).value)
+					}
+					searchPage.records.splice(0, 0, eval(document.getElementById('search')).value)
+					plus.storage.setItem('douban_app_history', searchPage.records.toString())
+
+					mui.openWindow({
+						id: 'searchresult',
+						url: 'search-result.html',
+						extras: {
+							name: document.getElementById('search').value
+						}
+					})
+				}
+			}
+		</script>
+	</body>
+
+</html>

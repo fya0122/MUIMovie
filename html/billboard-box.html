@@ -88,6 +88,7 @@
 			var detailPage = null
 			var myscroll = null
 			mui.plusReady(function() {
+				// 给detailPage赋值，根据id获取详情页面
 				detailPage = plus.webview.getWebviewById('moviedetail')
 				if(!detailPage) {
 					detailPage = mui.preload({
@@ -162,10 +163,11 @@
 				},
 				methods: {
 					open_detail: function(item) {
-						mui.fire(detailPage, 'movieid', function() {
+						// 触发详情页面的自定义事件
+						mui.fire(detailPage, 'movieid', {
 							id: item.id
 						})
-						open_detail.show('slide-in-right')
+						detailPage.show('slide-in-right')
 					}
 				}
 			})

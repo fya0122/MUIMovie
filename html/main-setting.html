@@ -9,18 +9,50 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 		<link rel="stylesheet" type="text/css" href="../css/reset.css" />
 		<link rel="stylesheet" href="../css/mui.min.css">
+		<script src="../js/lib-flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
 		<style type="text/css">
 			body {
 				background: white;
 			}
 		</style>
 		<script src="../js/mui.min.js"></script>
+		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 
 	<body>
-		<div class="container">
-			hello, this is main-setting.html
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">设置</h1>
+		</header>
+		<div class="mui-content">
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right dark-big">意见反馈</a>
+				</li>
+				<li id="clear" class="mui-table-view-cell">
+					<a class="mui-navigate-right dark-big">清除缓存</a>
+				</li>
+				<li id="about" class="mui-table-view-cell">
+					<a class="mui-navigate-right dark-big">关于我们</a>
+				</li>
+			</ul>
 		</div>
+		<script type="text/javascript">
+			mui.init();
+			mui.plusReady(function() {
+				mui('#clear')[0].addEventListener('tap', function() {
+					plus.cache.clear(function() {
+						mui.toast('清除缓存成功!')
+					})
+				})
+			})
+			mui('#about')[0].addEventListener('tap', function() {
+				mui.openWindow({
+					id: 'about',
+					url: 'about.html'
+				})
+			})
+		</script>
 	</body>
 
 </html>

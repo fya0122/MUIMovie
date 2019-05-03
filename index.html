@@ -153,7 +153,10 @@
 				});
 				// 给搜索框添加点击事件
 				mui('.wrap-search')[0].addEventListener('tap', function() {
-					mui.alert(123)
+					mui.openWindow({
+						id: 'search',
+						url: 'html/search.html'
+					})
 				})
 				// 预加载电影详情页面
 				var detailpage = mui.preload({

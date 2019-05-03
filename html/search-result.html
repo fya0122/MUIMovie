@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/reset.css" />
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script src="../js/lib-flexible.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			.mui-content {
+				background: white;
+			}
+			
+			.wrap-search {
+				margin: 0.15rem;
+				background: #e6e6e6;
+				height: 0.3rem;
+				border-radius: 0.05rem;
+				text-align: center;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			
+			.search-icon {
+				color: #AAAAAA;
+				font-size: 0.16rem;
+			}
+			
+			.search-txt {
+				color: #AAAAAA;
+				font-size: 0.14rem;
+			}
+			
+			.list-wrap {
+				width: 100%;
+				height: calc(100vh - 0.44rem);
+				position: relative;
+				overflow: hidden;
+			}
+			
+			.item {
+				box-sizing: border-box;
+				padding: 0.05rem 0.2rem;
+				border: none;
+				border-bottom: 0.01rem solid #eee;
+				display: flex;
+			}
+			
+			.item:last-child {
+				border-bottom: none;
+			}
+			
+			.item-img {
+				width: 0.6rem;
+				height: 0.9rem;
+				margin-right: 0.1rem;
+			}
+			
+			.right-wrap {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				align-items: flex-start;
+			}
+			
+			.dark-big {
+				color: #333333;
+				font-size: 0.16rem;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			
+			.gray-small {
+				color: #A2A2A2;
+				font-size: 0.12rem;
+			}
+			
+			.orange-small {
+				color: #F79709;
+				font-size: 0.12rem;
+			}
+		</style>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/bscroll.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">搜索结果</h1>
+		</header>
+		<div class="mui-content">
+			<div id="list_wrap" class="list-wrap">
+				<ul id="movies">
+					<li class="item" v-for="item in movies">
+						<img class="mui-pull-left item-img" :src="item.cover" />
+						<div class="right-wrap">
+							<div class="mui-ellipsis dark-big">{{ item.title }}</div>
+							<div class="mui-ellipsis">
+								<span class="gray-small">{{ item.genres }}</span>
+								<span class="orange-small">{{ item.score }}分</span>
+							</div>
+							<div class="mui-ellipsis gray-small">导演：{{ item.directors }}</div>
+							<div class="mui-ellipsis gray-small">主演：{{ item.casts }}</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<script type="text/javascript">
+			mui.init()
+			var name = null
+			var myscroll
+			var total
+			var start
+			var flag_pullingUp = false
+			mui.plusReady(function() {
+				var self = plus.webview.currentWebview()
+				name = self.name
+				refreshData(name)
+			})
+			// 这个函数是转换数据接口用的
+			function convert(items) {
+				var newItems = []
+				items.forEach(function(item) {
+					// 类型
+					var genres = item.genres.toString().replace(/,/g, '/')
+					// 导演
+					var directors = ''
+					for(var i = 0; i < item.directors.length; i++) {
+						directors += item.directors[i].name
+						if(i !== item.directors.length - 1) {
+							directors += '/'
+						}
+					}
+					// 演员
+					var casts = ''
+					for(var i = 0; i < item.casts.length; i++) {
+						casts += item.casts[i].name
+						if(i !== item.casts.length - 1) {
+							casts += '/'
+						}
+					}
+					newItems.push({
+						id: item.id,
+						title: item.title,
+						genres: genres,
+						cover: item.images.large,
+						score: item.rating.average,
+						directors: directors,
+						casts: casts
+					})
+				})
+				return newItems
+			}
+
+			function refreshData(name) {
+				mui.getJSON(baseUrl + '/v2/movie/search?q=' + name, {
+					start: 0,
+					count: 10
+				}, function(res) {
+					start = 0
+					total = res.total
+					currentPage.movies = []
+					currentPage.movies = convert(res.subjects)
+					myscroll = new BScroll(document.getElementById('list_wrap'), {
+						click: true,
+						scrollY: true,
+						pullUpLoad: true, // 开启上拉加载
+						pullDownRefresh: true // 开启下拉刷新
+					})
+					setTimeout(function() {
+						myscroll.refresh()
+					}, 77)
+					// 监听上拉加载执行的方法
+					myscroll.on('pullingUp', function() {
+						flag_pullingUp = true
+						mui.toast(1)
+						shanglajiazai()
+					})
+					// 监听下拉刷新执行的方法
+					myscroll.on('pullingDown', function() {
+						xialashuaxin()
+					})
+				})
+			}
+			var currentPage = new Vue({
+				el: '#list_wrap',
+				data: {
+					movies: []
+				}
+			})
+
+			function shanglajiazai() {
+				if(flag_pullingUp === false) {
+					mui.toast('稍等,数据正在请求中....')
+					return false
+				} else {
+					mui.toast(2)
+					start = start + 10
+					if(total > start) {
+						mui.getJSON(baseUrl + '/v2/movie/search?q=' + name, {
+							start: start,
+							count: 10
+						}, function(res) {
+							currentPage.movies = currentPage.movies.concat(convert(res.subjects))
+							myscroll.refresh()
+							myscroll.finishPullUp()
+							flag_pullingUp = false
+						})
+					} else {
+						mui.toast('数据请求完了老铁')
+						myscroll.refresh()
+						myscroll.finishPullUp()
+						return false
+					}
+				}
+
+			}
+			// 下拉刷新
+			function xialashuaxin() {
+				currentPage.movies = []
+				mui.getJSON(baseUrl + '/v2/movie/search?q=' + name, {
+					start: 0,
+					count: 10
+				}, function(res) {
+					start = 0
+					total = res.total
+					currentPage.movies = convert(res.subjects)
+					myscroll.refresh()
+					myscroll.finishPullDown()
+					mui.toast('我是下拉刷新' + start)
+				})
+			}
+		</script>
+	</body>
+
+</html>
