@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/reset.css" />
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/common.css" />
+		<script src="../js/lib-flexible.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			.top-nav {
+				background: white;
+			}
+			/* 排序数组的样式 */
+			
+			.top-index {
+				color: red;
+				font-size: 0.16rem;
+				font-size: initial;
+				width: 0.3rem;
+				display: inline-block;
+				margin-top: 0.4rem;
+				margin-bottom: 0.15rem;
+			}
+			/* 画的2个线 */
+			
+			.line {
+				width: 0.5rem;
+				background: #c4c4c4;
+				height: 0.005rem;
+				display: inline-block;
+				vertical-align: middle;
+			}
+			
+			.card {
+				margin-left: 0.15rem;
+				margin-right: 0.15rem;
+				height: 1.2rem;
+				border: 0.01rem solid #c4c4c4;
+				border-radius: 0.02rem;
+				box-shadow: 0 0.01rem 0.05rem #c4c4c4;
+				padding: 0.15rem;
+				text-align: left;
+			}
+			
+			.mywrap {
+				width: 100%;
+				position: relative;
+				height: calc(100vh - 0.845rem);
+				overflow: hidden;
+			}
+		</style>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/bscroll.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/baseConfig.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">豆瓣Top250</h1>
+		</header>
+		<div class="mui-content">
+			<div class="top-nav">
+				<div id="nav" class="mui-segmented-control mui-segmented-control-inverted">
+					<a class="mui-control-item mui-active" tabindex="0">Top1-50</a>
+					<a class="mui-control-item" tabindex="1">51-100</a>
+					<a class="mui-control-item" tabindex="2">101-150</a>
+					<a class="mui-control-item" tabindex="3">151-200</a>
+					<a class="mui-control-item" tabindex="4">201-250</a>
+				</div>
+				<div style="height: 0.005rem;background: #fff;"></div>
+			</div>
+			<div id="mywrap" class="mywrap">
+				<ul>
+					<li v-for="item in list" @click="open_detail(item)">
+						<div style="text-align: center;">
+							<div class="line"></div>
+							<div class="top-index">{{ item.sort }}</div>
+							<div class="line"></div>
+						</div>
+						<div class="card">
+							<img class="mui-pull-left" style="width: 0.7rem;height: 0.95rem;margin-right: 0.1rem;" :src="item.cover" alt="" />
+							<div class="dark-big">{{ item.title }}</div>
+							<div style="line-height: 0.2rem;">
+								<span class="gray-small">豆瓣评分：</span>
+								<span class="orange-small">{{ item.score }}分</span>
+							</div>
+							<span style="display: block;line-height: 0.2rem;" class="gray-small mui-ellipsis">
+								导演：{{ item.directors }}
+							</span>
+							<span style="display: block;line-height: 0.2rem;" class="gray-small mui-ellipsis">
+								演员：{{ item.casts }}
+							</span>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<script type="text/javascript">
+			mui.init()
+
+			// 顶部的点击事件
+			mui('#nav').on('tap', 'a', function() {
+				myscroll.scrollTo(0, 0, 500, 'easing')
+				getData(this.getAttribute('tabindex') * 50)
+			})
+			var myscroll
+			var detailPage = null
+			mui.plusReady(function() {
+				// 给detailPage赋值，根据id获取详情页面
+				detailPage = plus.webview.getWebviewById('moviedetail')
+				if(!detailPage) {
+					detailPage = mui.preload({
+						id: 'moviedetail',
+						url: 'movie-detail.html'
+					})
+				}
+				// 获取1-50的数据
+				getData(0)
+			})
+
+			var currentPage = new Vue({
+				el: '.mywrap',
+				data: {
+					list: []
+				},
+				methods: {
+					// 打开详情页面
+					open_detail: function(item) {
+						// 触发详情页面的自定义事件
+						mui.fire(detailPage, 'movieid', {
+							id: item.id
+						})
+						detailPage.show('slide-in-right')
+					}
+				}
+			})
+
+			// 获取接口数据的方法
+			function getData(start) {
+				plus.nativeUI.showWaiting('加载中', {
+					width: '100px',
+					height: '100px'
+				})
+				mui.getJSON(baseUrl + '/v2/movie/top250', {
+					start: start,
+					count: 50
+				}, function(res) {
+					currentPage.list = convert(res)
+					plus.nativeUI.closeWaiting()
+					// 列表滚动顶部
+					// 这里用better-scroll实现
+					myscroll = new BScroll(document.getElementById('mywrap'), {
+						click: true,
+						scrollY: true,
+						pullUpLoad: true, // 开启上拉加载
+						pullDownRefresh: true // 开启下拉刷新
+					})
+					setTimeout(function() {
+						myscroll.refresh()
+					}, 77)
+				})
+			}
+
+			// 数据转换
+			function convert(obj) {
+				var newItems = []
+				var items = obj.subjects
+				for(var i = 0; i < items.length; i++) {
+					var item = items[i]
+					// 重组导演
+					var directors = ''
+					for(var k = 0; k < item.directors.length; k++) {
+						directors += item.directors[k].name
+						if(k !== item.directors.length - 1) {
+							directors += '/'
+						}
+					}
+					// 演员
+					var casts = ''
+					for(var k = 0; k < item.casts.length; k++) {
+						casts += item.casts[k].name
+						if(k !== item.casts.length - 1) {
+							casts += '/'
+						}
+					}
+					newItems.push({
+						sort: i + obj.start + 1,
+						id: item.id,
+						title: item.title,
+						cover: item.images.medium,
+						score: item.rating.average,
+						directors: directors,
+						casts: casts
+					})
+				}
+				return newItems
+			}
+		</script>
+	</body>
+
+</html>
